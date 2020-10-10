@@ -1,5 +1,4 @@
-from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QPaintEvent, QPainter, QColor
+from PyQt5.QtGui import QPaintEvent, QColor, QMouseEvent
 from PyQt5.QtWidgets import QWidget
 
 from polygon import Polygon
@@ -13,17 +12,27 @@ class PolygonSurface( QWidget ):
 		self.draw_line_chain = GentleIncreaseLineDrawer()
 		self.draw_line_chain.set_next( SteepIncreaseLineDrawer() ).set_next( GentleDecreaseLineDrawer() ) \
 			.set_next( SteepDecreaseLineDrawer() )
-		self.polygons = [Polygon( [QPoint( 100, 100 ), QPoint( 50, 150 ), QPoint( 150, 150 )] )]
+		self.polygons = []
+		self.setMouseTracking( True )
+
+	def mouseReleaseEvent( self, event: QMouseEvent ) -> None:
+		self.add_polygon(
+			Polygon( [
+				QPoint( event.x(), event.y() - 20 ), QPoint( event.x() + 17, event.y() + 10 ),
+				QPoint( event.x() - 17, event.y() + 10 )
+			] )
+		)
+		self.repaint()
+
+	def mouseMoveEvent( self, event: QMouseEvent ) -> None:
+		for polygon in self.polygons:
+			polygon.find_edge( event.pos() )
 
 	def paintEvent( self, event: QPaintEvent ):
 		self.painter.begin( self )
 		self.painter.setPen( QColor( 0, 0, 255 ) )
 		for polygon in self.polygons:
 			self.__draw_polygon__( polygon )
-
-		# self.__draw_line_bresenham__( QPoint( 0, 0 ), QPoint( 100, 100 ) )
-		# self.__draw_line_bresenham__( QPoint( 100, 100 ), QPoint( 0, 0 ) )
-
 		self.painter.end()
 
 	def add_polygon( self, polygon: Polygon ):

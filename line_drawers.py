@@ -45,7 +45,8 @@ class SteepIncreaseLineDrawer( LineDrawer ):
 		dy = p2.y() - p1.y()
 		b = p1.y() - p1.x()
 		if 0 <= dx <= dy:
-			draw_line_bresenham( p1, p2, painter, transform = lambda p: QPoint( p.y() - b, p.x() + b ) )
+			transform = lambda p: QPoint( p.y() - b, p.x() + b )
+			draw_line_bresenham( p1, transform( p2 ), painter, transform )
 			return True
 		return False
 
@@ -55,7 +56,8 @@ class GentleDecreaseLineDrawer( LineDrawer ):
 		dx = p2.x() - p1.x()
 		dy = p2.y() - p1.y()
 		if 0 <= -dy <= dx:
-			draw_line_bresenham( p1, p2, painter, transform = lambda p: QPoint( p.x(), p1.y() - (p.y() - p1.y()) ) )
+			transform = lambda p: QPoint( p.x(), p1.y() - (p.y() - p1.y()) )
+			draw_line_bresenham( p1, transform( p2 ), painter, transform = transform )
 			return True
 		return False
 
@@ -66,8 +68,9 @@ class SteepDecreaseLineDrawer( LineDrawer ):
 		dy = p2.y() - p1.y()
 		b = p1.y() - p1.x()
 		if 0 <= dx <= -dy:
+			p2_trans = QPoint( 2 * p1.y() - p2.y() - b, p2.x() + b )
 			draw_line_bresenham(
-				p1, p2, painter, transform = lambda p: QPoint( p.y() - b, p1.y() - (p.x() + b - p1.y()) )
+				p1, p2_trans, painter, transform = lambda p: QPoint( p.y() - b, p1.y() - (p.x() + b - p1.y()) )
 			)
 			return True
 		return False

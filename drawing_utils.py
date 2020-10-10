@@ -4,11 +4,11 @@ from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainter
 
 
-def draw_line_bresenham( p1: QPoint, p2: QPoint, painter: QPainter,
-						 transform: Callable[[QPoint], QPoint] = lambda p: p ):
-	p2_trans = transform( p2 )
-	dx = p2_trans.x() - p1.x()
-	dy = p2_trans.y() - p1.y()
+def draw_line_bresenham(
+		p1: QPoint, p2: QPoint, painter: QPainter, transform: Callable[[QPoint], QPoint] = lambda p: p
+):
+	dx = p2.x() - p1.x()
+	dy = p2.y() - p1.y()
 	d = 2 * dy - dx
 	incr_e = 2 * dy
 	incr_ne = 2 * (dy - dx)
@@ -16,7 +16,7 @@ def draw_line_bresenham( p1: QPoint, p2: QPoint, painter: QPainter,
 	y = p1.y()
 	painter.drawPoint( x, y )
 
-	while x < p2_trans.x():
+	while x < p2.x():
 		if d < 0:  # choose E
 			d += incr_e
 		else:  # choose NE
