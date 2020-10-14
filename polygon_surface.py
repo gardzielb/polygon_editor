@@ -14,6 +14,7 @@ class PolygonSurface( QWidget ):
 			.set_next( SteepDecreaseLineDrawer() )
 		self.polygons = []
 		self.setMouseTracking( True )
+		self.is_drawing = False
 
 	def mouseReleaseEvent( self, event: QMouseEvent ) -> None:
 		self.add_polygon(
@@ -24,9 +25,9 @@ class PolygonSurface( QWidget ):
 		)
 		self.repaint()
 
-	def mouseMoveEvent( self, event: QMouseEvent ) -> None:
-		for polygon in self.polygons:
-			polygon.find_edge( event.pos() )
+	# def mouseMoveEvent( self, event: QMouseEvent ) -> None:
+	# 	for polygon in self.polygons:
+	# 		polygon.find_edge( event.pos() )
 
 	def paintEvent( self, event: QPaintEvent ):
 		self.painter.begin( self )
