@@ -1,12 +1,12 @@
-from typing import List, Tuple, Dict
+from typing import Dict
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPaintEvent, QColor, QMouseEvent, QPainterPath, QBrush
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt
 
 from constants import POINT_RADIUS
-from polygon import Polygon
 from line_drawers import *
+from polygon import Polygon
 from polygon_builder import PolygonBuilder
 
 

@@ -16,7 +16,7 @@ class PolygonBuilder:
 		if self.is_finished:
 			return
 		self.points.append( point )
-		self.is_finished = self.are_ends_met()
+		self.is_finished = self.__are_ends_met__()
 		if not self.is_finished:
 			self.points.append( point )
 
@@ -33,7 +33,7 @@ class PolygonBuilder:
 	def current_size( self ):
 		return len( self.points )
 
-	def are_ends_met( self ) -> bool:
+	def __are_ends_met__( self ) -> bool:
 		v_count = len( self.points )
 		if v_count <= 1:
 			return False
