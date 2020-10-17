@@ -19,7 +19,6 @@ class Polygon( GeometricObject ):
 		self.vertices: List[Vertex] = vertices
 		self.edges: List[Edge] = []
 		self.painter_path = self.__update_painter_path__()
-		self.active_object: Union[GeometricObject, None] = None
 		self.is_moving = False
 		self.move_origin: Union[QPoint, None] = None
 
@@ -48,41 +47,27 @@ class Polygon( GeometricObject ):
 
 	def move( self, dest_point: QPoint ):
 		self.is_moving = True
-		if self.active_object is not self:
-			self.active_object.move( dest_point )
-		else:
-			if self.move_origin:
-				x_move = dest_point.x() - self.move_origin.x()
-				y_move = dest_point.y() - self.move_origin.y()
-				for vertex in self.vertices:
-					vertex.move( dest_point = QPoint( vertex.point.x() + x_move, vertex.point.y() + y_move ) )
-			self.move_origin = dest_point
+		if self.move_origin:
+			x_move = dest_point.x() - self.move_origin.x()
+			y_move = dest_point.y() - self.move_origin.y()
+			for vertex in self.vertices:
+				vertex.move( dest_point = QPoint( vertex.point.x() + x_move, vertex.point.y() + y_move ) )
+		self.move_origin = dest_point
 
-	def release( self ):
+	def post_move_update( self ):
 		self.is_moving = False
-		self.active_object.highlight = False
-		self.active_object = None
 		self.painter_path = self.__update_painter_path__()
 		for edge in self.edges:
 			edge.post_move_update()
 
-	def try_hit( self, point: QPoint ) -> bool:
+	def search_for_hit( self, point: QPoint ) -> Union[GeometricObject, None]:
 		objects: List[GeometricObject] = self.vertices.copy()
 		objects.extend( self.edges )
 		objects.append( self )
-
-		last_active = self.active_object
-		self.active_object = None
 		for obj in objects:
 			if obj.is_hit( hit = point ):
-				obj.highlight = True
-				self.active_object = obj
-				break
-
-		if last_active and self.active_object is not last_active:
-			last_active.highlight = False
-
-		return bool( self.active_object )
+				return obj
+		return None
 
 	def is_hit( self, hit: QPoint ) -> bool:
 		if not self.get_bounding_box().contains( hit, proper = False ):

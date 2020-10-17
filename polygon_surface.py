@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget
 from geometry_drawer import GeometryDrawer
 from line_drawers import *
 from polygon import Polygon
+from polygon_action_manager import PolygonActionManager
 from polygon_builder import PolygonBuilder
 
 
@@ -18,23 +19,20 @@ class PolygonSurface( QWidget ):
 
 		self.polygons: List[Polygon] = []
 		self.polygon_builder = PolygonBuilder()
-		self.active_polygon: Union[Polygon, None] = None
-		self.is_object_grabbed = False
+		self.polygon_action_manager = PolygonActionManager()
 
 		self.setMouseTracking( True )
 
 	def mousePressEvent( self, event: QMouseEvent ) -> None:
 		if event.button() != Qt.LeftButton:
 			return
-		if self.active_polygon:
-			self.is_object_grabbed = True
+		if self.polygon_action_manager.is_active:
+			self.polygon_action_manager.is_moving = True
 
 	def mouseReleaseEvent( self, event: QMouseEvent ) -> None:
 		if event.button() == Qt.LeftButton:
-			if self.is_object_grabbed:
-				self.active_polygon.release()
-				self.active_polygon = None
-				self.is_object_grabbed = False
+			if self.polygon_action_manager.is_moving:
+				self.polygon_action_manager.release_object()
 			else:
 				self.polygon_builder.add_point( event.pos() )
 				if self.polygon_builder.is_finished:
@@ -46,13 +44,14 @@ class PolygonSurface( QWidget ):
 	def mouseMoveEvent( self, event: QMouseEvent ) -> None:
 		if not self.polygon_builder.is_finished:
 			self.polygon_builder.move_floating_vertex( event.pos() )
-		elif self.is_object_grabbed:
-			self.active_polygon.move( dest_point = event.pos() )
+		elif self.polygon_action_manager.is_moving:
+			self.polygon_action_manager.move_object( dest_point = event.pos() )
 		else:
-			self.active_polygon = None
+			self.polygon_action_manager.release_object()
 			for polygon in self.polygons:
-				if polygon.try_hit( event.pos() ):
-					self.active_polygon = polygon
+				hit_object = polygon.search_for_hit( event.pos() )
+				if hit_object:
+					self.polygon_action_manager.set_polygon( polygon, active_object = hit_object )
 					break
 		self.repaint()
 
