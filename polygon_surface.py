@@ -5,7 +5,6 @@ from PyQt5.QtGui import QPaintEvent, QMouseEvent
 from PyQt5.QtWidgets import QWidget
 
 from geometry_drawer import GeometryDrawer
-from line_drawers import *
 from polygon import Polygon
 from polygon_action_manager import PolygonActionManager
 from polygon_builder import PolygonBuilder
@@ -38,7 +37,10 @@ class PolygonSurface( QWidget ):
 				if self.polygon_builder.is_finished:
 					self.polygons.append( self.polygon_builder.build_polygon() )
 		else:
-			self.polygon_builder.reset()
+			if self.polygon_action_manager.is_active:
+				self.polygon_action_manager.remove_object()
+			else:
+				self.polygon_builder.reset()
 		self.repaint()
 
 	def mouseMoveEvent( self, event: QMouseEvent ) -> None:

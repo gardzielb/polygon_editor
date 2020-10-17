@@ -3,12 +3,13 @@ from typing import List, Union
 from PyQt5.QtCore import QPoint, QRect
 from PyQt5.QtGui import QPainterPath, QColor
 
-from geometric_object import GeometricObject
+from geometry_object import GeometryObject
 from geometry_drawer import GeometryDrawer
 from polygon_objects import Vertex, Edge
+from geometry_visitor import GeometryObjectVisitor
 
 
-class Polygon( GeometricObject ):
+class Polygon( GeometryObject ):
 	DEFAULT_PEN = QColor( 0, 0, 255 )
 	DEFAULT_BRUSH = QColor( 102, 178, 255 )
 	HIGHLIGHT_BRUSH = QColor( 255, 102, 178 )
@@ -54,33 +55,33 @@ class Polygon( GeometricObject ):
 				vertex.move( dest_point = QPoint( vertex.point.x() + x_move, vertex.point.y() + y_move ) )
 		self.move_origin = dest_point
 
-	def post_move_update( self ):
-		self.is_moving = False
-		self.painter_path = self.__update_painter_path__()
-		for edge in self.edges:
-			edge.post_move_update()
-
-	def search_for_hit( self, point: QPoint ) -> Union[GeometricObject, None]:
-		objects: List[GeometricObject] = self.vertices.copy()
-		objects.extend( self.edges )
-		objects.append( self )
-		for obj in objects:
-			if obj.is_hit( hit = point ):
-				return obj
-		return None
-
 	def is_hit( self, hit: QPoint ) -> bool:
 		if not self.get_bounding_box().contains( hit, proper = False ):
 			return False
 		outer_point = QPoint( max( [v.point.x() for v in self.vertices] ) + Vertex.RADIUS + 1, hit.y() )
 		intersect_count = 0
 		for edge in self.edges:
-			# print( f"[({hit.x()}, {hit.y()}), ({outer_point.x()}, {outer_point.y()})]" )
-			# print( f"\tvs [({edge.p1.x()}, {edge.p1.y()}), ({edge.p2.x()}, {edge.p2.y()})]" )
 			if edge.is_line_intersecting( outer_point, hit ):
-				# print( "intersecting" )
 				intersect_count += 1
 		return bool( intersect_count & 1 )
+
+	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
+		return visitor.visit_polygon( polygon = self )
+
+	def post_move_update( self ):
+		self.is_moving = False
+		self.painter_path = self.__update_painter_path__()
+		for edge in self.edges:
+			edge.post_move_update()
+
+	def search_for_hit( self, point: QPoint ) -> Union[GeometryObject, None]:
+		objects: List[GeometryObject] = self.vertices.copy()
+		objects.extend( self.edges )
+		objects.append( self )
+		for obj in objects:
+			if obj.is_hit( hit = point ):
+				return obj
+		return None
 
 	def get_bounding_box( self ) -> QRect:
 		x_min = min( [v.point.x() for v in self.vertices] )

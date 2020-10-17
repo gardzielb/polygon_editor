@@ -4,11 +4,12 @@ from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
 
 from geo_utils import get_line_equation
-from geometric_object import GeometricObject
+from geometry_object import GeometryObject
 from geometry_drawer import GeometryDrawer
+from geometry_visitor import GeometryObjectVisitor
 
 
-class Vertex( GeometricObject ):
+class Vertex( GeometryObject ):
 	RADIUS = 2
 	HIGHLIGHT_PEN = QColor( 0, 200, 0 )
 
@@ -34,8 +35,11 @@ class Vertex( GeometricObject ):
 			return False
 		return abs( self.point.y() - hit.y() ) <= self.RADIUS
 
+	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
+		return visitor.visit_vertex( vertex = self )
 
-class Edge( GeometricObject ):
+
+class Edge( GeometryObject ):
 	HIGHLIGHT_PEN = QColor( 255, 255, 0 )
 	STROKE_WIDTH = 2
 
@@ -56,10 +60,6 @@ class Edge( GeometricObject ):
 		drawer.draw_line( self.p1, self.p2 )
 		drawer.set_pen( prev_pen )
 
-	def post_move_update( self ):
-		self.a, self.b = get_line_equation( self.p1, self.p2 )
-		self.move_origin = None
-
 	def move( self, dest_point: QPoint ):
 		if self.move_origin:
 			move_x = dest_point.x() - self.move_origin.x()
@@ -79,6 +79,9 @@ class Edge( GeometricObject ):
 			return True
 		return abs( hit.y() - (self.a * hit.x() + self.b) ) <= self.STROKE_WIDTH
 
+	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
+		return visitor.visit_edge( edge = self )
+
 	def is_line_intersecting( self, p1: QPoint, p2: QPoint ) -> bool:
 		a, b = get_line_equation( p1, p2 )
 		if self.a == a:
@@ -87,3 +90,7 @@ class Edge( GeometricObject ):
 		x_cross = (b - self.b) / (self.a - a)
 		y_cross = a * x_cross + b
 		return self.is_hit( hit = QPoint( x_cross, y_cross ) )
+
+	def post_move_update( self ):
+		self.a, self.b = get_line_equation( self.p1, self.p2 )
+		self.move_origin = None
