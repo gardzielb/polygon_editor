@@ -1,81 +1,76 @@
-from typing import Dict
+from typing import Dict, List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPaintEvent, QColor, QMouseEvent, QPainterPath, QBrush
 from PyQt5.QtWidgets import QWidget
 
-from constants import POINT_RADIUS
+from geometry_drawer import GeometryDrawer
+from geometric_object import GeometricObject
 from line_drawers import *
-from polygon import Polygon
+from polygon import Polygon, Vertex
 from polygon_builder import PolygonBuilder
 
 
-def build_polygon_path( polygon: Polygon ) -> QPainterPath:
-	path = QPainterPath( polygon.points[0] )
-	for i in range( 1, len( polygon.points ) - 1 ):
-		path.lineTo( polygon.points[i] )
-	return path
-
-
 class PolygonSurface( QWidget ):
-	STROKE_COLOR = QColor( 0, 0, 255 )
-	FILL_BRUSH = QBrush( QColor( 200, 200, 200 ), Qt.SolidPattern )
 
 	def __init__( self, *args ):
 		super().__init__( *args )
-		self.painter = QPainter()
-		self.draw_line_chain = GentleIncreaseLineDrawer()
-		self.draw_line_chain.set_next( SteepIncreaseLineDrawer() ).set_next( GentleDecreaseLineDrawer() ) \
-			.set_next( SteepDecreaseLineDrawer() )
+		self.drawer = GeometryDrawer()
 
-		self.polygon_map: Dict[Polygon, QPainterPath] = { }
+		self.polygons: List[Polygon] = []
 		self.polygon_builder = PolygonBuilder()
+		self.active_object: Union[GeometricObject, None] = None
+		self.is_object_grabbed = False
 
 		self.setMouseTracking( True )
-		self.is_drawing = False
+
+	def mousePressEvent( self, event: QMouseEvent ) -> None:
+		if event.button() != Qt.LeftButton:
+			return
+		if self.active_object:
+			self.active_object.start_moving( event.pos() )
+			self.is_object_grabbed = True
 
 	def mouseReleaseEvent( self, event: QMouseEvent ) -> None:
-		self.polygon_builder.add_point( event.pos() )
-		if self.polygon_builder.is_finished:
-			polygon = self.polygon_builder.build_polygon()
-			self.polygon_map[polygon] = build_polygon_path( polygon )
+		if event.button() == Qt.LeftButton:
+			if self.is_object_grabbed:
+				self.active_object.end_moving()
+				self.active_object.highlight = False
+				self.active_object = None
+				self.is_object_grabbed = False
+			else:
+				self.polygon_builder.add_point( event.pos() )
+				if self.polygon_builder.is_finished:
+					self.polygons.append( self.polygon_builder.build_polygon() )
+		else:
+			self.polygon_builder.reset()
+
 		self.repaint()
 
 	def mouseMoveEvent( self, event: QMouseEvent ) -> None:
 		if not self.polygon_builder.is_finished:
 			self.polygon_builder.move_last_point( event.pos() )
+		elif self.is_object_grabbed:
+			self.active_object.move( dest_point = event.pos() )
+		else:
+			self.active_object = None
+			for polygon in self.polygons:
+				vertex = polygon.search_for_vertex( event.pos() )
+				if vertex:
+					self.active_object = vertex
+					self.active_object.highlight = True
+					# print( self.active_object.highlight )
+					break
 		self.repaint()
 
 	def paintEvent( self, event: QPaintEvent ):
-		self.painter.begin( self )
-		self.painter.setPen( QColor( 0, 0, 255 ) )
-		for polygon in self.polygon_map.keys():
-			self.__draw_polygon__( polygon )
+		self.drawer.begin( self )
+		for polygon in self.polygons:
+			polygon.draw( self.drawer )
 		self.__draw_unfinished_polygon__()
-		self.painter.end()
+		self.drawer.end()
 
 	def __draw_unfinished_polygon__( self ):
 		for i in range( self.polygon_builder.current_size() - 1 ):
-			self.__draw_point__( self.polygon_builder.points[i] )
-			self.__draw_line__( self.polygon_builder.points[i], self.polygon_builder.points[i + 1] )
-
-	def __draw_polygon__( self, polygon: Polygon ):
-		self.painter.fillPath( self.polygon_map[polygon], self.FILL_BRUSH )
-		v_count = polygon.vertices()
-		for i in range( v_count ):
-			i2 = (i + 1) % v_count
-			self.__draw_point__( polygon.points[i] )
-			self.__draw_line__( polygon.points[i], polygon.points[i2] )
-
-	def __draw_line__( self, p1: QPoint, p2: QPoint ):
-		if p1.x() < p2.x():
-			self.draw_line_chain.draw_line( p1, p2, self.painter )
-		elif p1.x() == p2.x():
-			pass  # TODO
-		else:
-			self.draw_line_chain.draw_line( p2, p1, self.painter )
-
-	def __draw_point__( self, point: QPoint ):
-		for i in range( -POINT_RADIUS, POINT_RADIUS ):
-			for j in range( -POINT_RADIUS, POINT_RADIUS ):
-				self.painter.drawPoint( point.x() + i, point.y() + j )
+			self.polygon_builder.vertices[i].draw( self.drawer )
+			self.drawer.draw_line( self.polygon_builder.vertices[i].point, self.polygon_builder.vertices[i + 1].point )

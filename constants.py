@@ -1,1 +1,0 @@
-POINT_RADIUS = 2
