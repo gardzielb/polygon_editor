@@ -11,8 +11,8 @@ from geometry_visitor import GeometryObjectVisitor
 
 class Polygon( GeometryObject ):
 	DEFAULT_PEN = QColor( 0, 0, 255 )
-	DEFAULT_BRUSH = QColor( 102, 178, 255 )
-	HIGHLIGHT_BRUSH = QColor( 255, 102, 178 )
+	DEFAULT_BRUSH = QColor( 102, 178, 255, 80 )
+	HIGHLIGHT_BRUSH = QColor( 255, 102, 178, 80 )
 
 	def __init__( self, vertices: List[Vertex] ):
 		super().__init__()
