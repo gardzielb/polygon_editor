@@ -1,7 +1,10 @@
 from typing import List
 
 from PyQt5.QtCore import QPoint
+from PyQt5.QtWidgets import QMenu
 
+from edge_constraint import VerticalEdgeConstraint, HorizontalEdgeConstraint, LengthEdgeConstraint
+from geo_utils import line_middle_point
 from geometry_visitor import GeometryObjectVisitor
 from polygon import Polygon
 from polygon_objects import Vertex, Edge
@@ -40,9 +43,7 @@ class RemoveGeometryObjectVisitor( GeometryObjectVisitor ):
 		e_index = self.polygon.edges.index( edge )
 		self.polygon.edges.remove( edge )
 
-		new_x = (edge.p1.x() + edge.p2.x()) / 2
-		new_y = (edge.p1.y() + edge.p2.y()) / 2
-		new_point = QPoint( new_x, new_y )
+		new_point = line_middle_point( edge.p1, edge.p2 )
 
 		v1_index = v2_index = -1
 		for i in range( len( self.polygon.vertices ) ):

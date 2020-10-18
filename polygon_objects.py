@@ -3,9 +3,9 @@ from typing import Union
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
 
-from geo_utils import get_line_equation
-from geometry_object import GeometryObject
+from geo_utils import get_line_equation, line_length
 from geometry_drawer import GeometryDrawer
+from geometry_object import GeometryObject
 from geometry_visitor import GeometryObjectVisitor
 
 
@@ -52,6 +52,7 @@ class Edge( GeometryObject ):
 
 		# line equation
 		self.a, self.b = get_line_equation( p1, p2 )
+		self.length = line_length( p1, p2 )
 
 	def draw( self, drawer: GeometryDrawer ):
 		prev_pen = drawer.pen()
@@ -94,3 +95,4 @@ class Edge( GeometryObject ):
 	def post_move_update( self ):
 		self.a, self.b = get_line_equation( self.p1, self.p2 )
 		self.move_origin = None
+		self.length = line_length( self.p1, self.p2 )
