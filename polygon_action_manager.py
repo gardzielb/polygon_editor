@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 from PyQt5.QtCore import QPoint
 
@@ -16,10 +16,10 @@ class PolygonActionManager:
 		self.is_moving = False
 		self.is_active = False
 
-	def set_polygon( self, polygon: Polygon, active_object: GeometryObject ):
+	def set_polygon( self, polygon: Polygon, active_object: GeometryObject, polygon_list: List[Polygon] ):
 		self.polygon = polygon
 		self.active_object = active_object
-		self.remove_visitor = RemoveGeometryObjectVisitor( polygon )
+		self.remove_visitor = RemoveGeometryObjectVisitor( polygon, polygon_list )
 		self.active_object.highlight = True
 		self.is_active = True
 

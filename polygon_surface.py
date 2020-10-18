@@ -53,7 +53,9 @@ class PolygonSurface( QWidget ):
 			for polygon in self.polygons:
 				hit_object = polygon.search_for_hit( event.pos() )
 				if hit_object:
-					self.polygon_action_manager.set_polygon( polygon, active_object = hit_object )
+					self.polygon_action_manager.set_polygon(
+						polygon, active_object = hit_object, polygon_list = self.polygons
+					)
 					break
 		self.repaint()
 

@@ -56,14 +56,7 @@ class Polygon( GeometryObject ):
 		self.move_origin = dest_point
 
 	def is_hit( self, hit: QPoint ) -> bool:
-		if not self.get_bounding_box().contains( hit, proper = False ):
-			return False
-		outer_point = QPoint( max( [v.point.x() for v in self.vertices] ) + Vertex.RADIUS + 1, hit.y() )
-		intersect_count = 0
-		for edge in self.edges:
-			if edge.is_line_intersecting( outer_point, hit ):
-				intersect_count += 1
-		return bool( intersect_count & 1 )
+		return self.painter_path.contains( hit )
 
 	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
 		return visitor.visit_polygon( polygon = self )
