@@ -1,13 +1,5 @@
 from abc import ABC, abstractmethod
 
-from PyQt5.QtCore import QPoint
-
-
-# from polygon import Polygon
-# from polygon_objects import Vertex, Edge
-# import polygon as polygon_module
-# import polygon_objects
-
 
 class GeometryObjectVisitor( ABC ):
 

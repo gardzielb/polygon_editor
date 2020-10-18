@@ -35,10 +35,6 @@ class RemoveGeometryObjectVisitor( GeometryObjectVisitor ):
 	def visit_edge( self, edge: Edge ) -> bool:
 		self.polygon.edges.remove( edge )
 
-		del_vertices = [v.point for v in self.polygon.vertices if v.point == edge.p1 or v.point == edge.p2]
-		self.polygon.vertices.remove( del_vertices[0] )
-		self.polygon.vertices.remove( del_vertices[1] )
-
 		new_x = (edge.p1.x() + edge.p2.x()) / 2
 		new_y = (edge.p1.y() + edge.p2.y()) / 2
 		new_point = QPoint( new_x, new_y )
@@ -46,8 +42,7 @@ class RemoveGeometryObjectVisitor( GeometryObjectVisitor ):
 		self.polygon.vertices.append( Vertex( new_point ) )
 		self.polygon.edges.append( Edge( edge.p1, new_point ) )
 		self.polygon.edges.append( Edge( edge.p2, new_point ) )
-
 		return True
 
 	def visit_polygon( self, polygon: Polygon ) -> bool:
-		pass
+		return True
