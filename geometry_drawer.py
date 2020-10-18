@@ -14,15 +14,13 @@ class GeometryDrawer:
 			.set_next( SteepDecreaseLineDrawer() )
 
 	def draw_point( self, point: QPoint, radius: int ):
-		for i in range( -radius, radius ):
-			for j in range( -radius, radius ):
+		for i in range( -radius, radius + 1 ):
+			for j in range( -radius, radius + 1 ):
 				self.painter.drawPoint( point.x() + i, point.y() + j )
 
 	def draw_line( self, p1: QPoint, p2: QPoint ):
-		if p1.x() < p2.x():
+		if p1.x() <= p2.x():
 			self.draw_line_chain.draw_line( p1, p2, self.painter )
-		elif p1.x() == p2.x():
-			pass  # TODO
 		else:
 			self.draw_line_chain.draw_line( p2, p1, self.painter )
 

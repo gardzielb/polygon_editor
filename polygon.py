@@ -47,7 +47,6 @@ class Polygon( GeometryObject ):
 		drawer.set_brush( prev_brush )
 
 	def move( self, dest_point: QPoint ):
-		self.is_moving = True
 		if self.move_origin:
 			x_move = dest_point.x() - self.move_origin.x()
 			y_move = dest_point.y() - self.move_origin.y()

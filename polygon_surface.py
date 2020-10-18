@@ -26,7 +26,7 @@ class PolygonSurface( QWidget ):
 		if event.button() != Qt.LeftButton:
 			return
 		if self.polygon_action_manager.is_active:
-			self.polygon_action_manager.is_moving = True
+			self.polygon_action_manager.set_moving( True )
 
 	def mouseReleaseEvent( self, event: QMouseEvent ) -> None:
 		if event.button() == Qt.LeftButton:
