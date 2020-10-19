@@ -1,9 +1,7 @@
 from typing import List
 
 from PyQt5.QtCore import QPoint
-from PyQt5.QtWidgets import QMenu
 
-from edge_constraint import VerticalEdgeConstraint, HorizontalEdgeConstraint, LengthEdgeConstraint
 from geo_utils import line_middle_point
 from geometry_visitor import GeometryObjectVisitor
 from polygon import Polygon
