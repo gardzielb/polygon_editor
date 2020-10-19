@@ -2,7 +2,7 @@ from typing import List
 
 from PyQt5.QtCore import QPoint
 
-from geo_utils import line_middle_point
+from edge_dialog import EdgeDialog
 from geometry_visitor import GeometryObjectVisitor
 from polygon import Polygon
 from polygon_objects import Vertex, Edge
@@ -15,7 +15,7 @@ def __opposite_point__( edge: Edge, vertex: Vertex ) -> QPoint:
 		return edge.p1
 
 
-class RemoveGeometryObjectVisitor( GeometryObjectVisitor ):
+class EditGeometryObjectVisitor( GeometryObjectVisitor ):
 
 	def __init__( self, polygon: Polygon, polygon_list: List[Polygon] ):
 		self.polygon = polygon
@@ -38,31 +38,11 @@ class RemoveGeometryObjectVisitor( GeometryObjectVisitor ):
 		return True
 
 	def visit_edge( self, edge: Edge ) -> bool:
-		e_index = self.polygon.edges.index( edge )
-		self.polygon.edges.remove( edge )
-
-		new_point = line_middle_point( edge.p1, edge.p2 )
-
-		v1_index = v2_index = -1
-		for i in range( len( self.polygon.vertices ) ):
-			point = self.polygon.vertices[i].point
-			if point == edge.p1:
-				v1_index = i
-			if point == edge.p2:
-				v2_index = i
-
-		if v1_index < 0 or v2_index < 0:
-			return False
-
-		# first and last vertex
-		if abs( v1_index - v2_index ) == len( self.polygon.vertices ) - 1:
-			self.polygon.vertices.append( Vertex( new_point ) )
-		else:
-			self.polygon.vertices.insert( max( v1_index, v2_index ), Vertex( new_point ) )
-
-		self.polygon.edges.insert( e_index, Edge( edge.p1, new_point ) )
-		self.polygon.edges.insert( e_index + 1, Edge( edge.p2, new_point ) )
-		return True
+		dialog = EdgeDialog()
+		if not dialog.exec_():
+			return True
+		action = dialog.get_action( self.polygon )
+		return action.apply( edge )
 
 	def visit_polygon( self, polygon: Polygon ) -> bool:
 		self.polygon_list.remove( polygon )

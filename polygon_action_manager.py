@@ -4,7 +4,7 @@ from PyQt5.QtCore import QPoint
 
 from geometry_object import GeometryObject
 from polygon import Polygon
-from remove_visitor import RemoveGeometryObjectVisitor
+from edit_visitor import EditGeometryObjectVisitor
 
 
 class PolygonActionManager:
@@ -12,14 +12,14 @@ class PolygonActionManager:
 	def __init__( self ):
 		self.polygon: Union[Polygon, None] = None
 		self.active_object: Union[GeometryObject, None] = None
-		self.remove_visitor: Union[RemoveGeometryObjectVisitor, None] = None
+		self.remove_visitor: Union[EditGeometryObjectVisitor, None] = None
 		self.is_moving = False
 		self.is_active = False
 
 	def set_polygon( self, polygon: Polygon, active_object: GeometryObject, polygon_list: List[Polygon] ):
 		self.polygon = polygon
 		self.active_object = active_object
-		self.remove_visitor = RemoveGeometryObjectVisitor( polygon, polygon_list )
+		self.remove_visitor = EditGeometryObjectVisitor( polygon, polygon_list )
 		self.active_object.highlight = True
 		self.is_active = True
 
