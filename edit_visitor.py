@@ -5,7 +5,8 @@ from PyQt5.QtCore import QPoint
 from edge_dialog import EdgeDialog
 from geometry_visitor import GeometryObjectVisitor
 from polygon import Polygon
-from polygon_objects import Vertex, Edge
+from edge import Edge
+from vertex import Vertex, VertexObserver, VerticalEdgeVertexRelation
 
 
 def __opposite_point__( edge: Edge, vertex: Vertex ) -> QPoint:
@@ -22,6 +23,12 @@ class EditGeometryObjectVisitor( GeometryObjectVisitor ):
 		self.polygon_list = polygon_list
 
 	def visit_vertex( self, vertex: Vertex ) -> bool:
+		i = self.polygon.vertices.index( vertex )
+		v2 = self.polygon.vertices[(i + 1) % len( self.polygon.vertices )]
+		observer = VertexObserver( vertex, v2, relation = VerticalEdgeVertexRelation() )
+		vertex.move_observers.append( observer )
+		v2.move_observers.append( observer )
+
 		if len( self.polygon.vertices ) == 3:
 			return False
 		self.polygon.vertices.remove( vertex )

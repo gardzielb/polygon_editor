@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
@@ -7,36 +7,6 @@ from geo_utils import get_line_equation, line_length
 from geometry_drawer import GeometryDrawer
 from geometry_object import GeometryObject
 from geometry_visitor import GeometryObjectVisitor
-
-
-class Vertex( GeometryObject ):
-	RADIUS = 2
-	HIGHLIGHT_PEN = QColor( 0, 200, 0 )
-
-	def __init__( self, point: QPoint ):
-		super().__init__()
-		self.point = point
-
-	def draw( self, drawer: GeometryDrawer ):
-		radius = self.RADIUS
-		prev_pen = drawer.pen()
-		if self.highlight:
-			drawer.set_pen( self.HIGHLIGHT_PEN )
-			radius += 1
-		drawer.draw_point( self.point, radius )
-		drawer.set_pen( prev_pen )
-
-	def move( self, dest_point: QPoint ):
-		self.point.setX( dest_point.x() )
-		self.point.setY( dest_point.y() )
-
-	def is_hit( self, hit: QPoint ) -> bool:
-		if abs( self.point.x() - hit.x() ) > self.RADIUS:
-			return False
-		return abs( self.point.y() - hit.y() ) <= self.RADIUS
-
-	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
-		return visitor.visit_vertex( vertex = self )
 
 
 class Edge( GeometryObject ):

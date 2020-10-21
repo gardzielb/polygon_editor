@@ -5,7 +5,8 @@ from PyQt5.QtGui import QPainterPath, QColor
 
 from geometry_object import GeometryObject
 from geometry_drawer import GeometryDrawer
-from polygon_objects import Vertex, Edge
+from edge import Edge
+from vertex import Vertex
 from geometry_visitor import GeometryObjectVisitor
 
 

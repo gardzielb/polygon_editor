@@ -3,7 +3,9 @@ from math import sqrt
 
 from geo_utils import line_middle_point, setup_x_symmetrically, setup_y_symmetrically
 from polygon import Polygon
-from polygon_objects import Edge, Vertex
+from edge import Edge
+from vertex import Vertex, VerticalEdgeVertexRelation, HorizontalEdgeVertexRelation, FixedEdgeLengthVertexRelation, \
+	VertexObserver
 
 
 class EdgeAction( ABC ):
