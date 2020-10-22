@@ -40,7 +40,7 @@ class PolygonBuilder:
 
 	def move_floating_vertex( self, point: QPoint ):
 		if self.floating_vertex and not self.is_finished:
-			self.floating_vertex.move( dest_point = point )
+			self.floating_vertex.move( point.x(), point.y() )
 
 	def draw( self, drawer: GeometryDrawer ):
 		if not self.vertices:

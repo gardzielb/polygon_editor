@@ -1,19 +1,17 @@
 from typing import List
 
-from PyQt5.QtCore import QPoint
-
+from edge import Edge
 from edge_dialog import EdgeDialog
 from geometry_visitor import GeometryObjectVisitor
 from polygon import Polygon
-from edge import Edge
-from vertex import Vertex, VertexObserver, VerticalEdgeVertexRelation
+from vertex import Vertex
 
 
-def __opposite_point__( edge: Edge, vertex: Vertex ) -> QPoint:
-	if edge.p1 == vertex.point:
-		return edge.p2
+def __opposite_vertex__( edge: Edge, vertex: Vertex ) -> Vertex:
+	if edge.v1 == vertex:
+		return edge.v2
 	else:
-		return edge.p1
+		return edge.v1
 
 
 class EditGeometryObjectVisitor( GeometryObjectVisitor ):
@@ -23,25 +21,26 @@ class EditGeometryObjectVisitor( GeometryObjectVisitor ):
 		self.polygon_list = polygon_list
 
 	def visit_vertex( self, vertex: Vertex ) -> bool:
-		i = self.polygon.vertices.index( vertex )
-		v2 = self.polygon.vertices[(i + 1) % len( self.polygon.vertices )]
-		observer = VertexObserver( vertex, v2, relation = VerticalEdgeVertexRelation() )
-		vertex.move_observers.append( observer )
-		v2.move_observers.append( observer )
+		# i = self.polygon.vertices.index( vertex )
+		# v2 = self.polygon.vertices[(i + 1) % len( self.polygon.vertices )]
+		# observer = VertexObserver( vertex, v2, relation = VerticalEdgeVertexRelation() )
+		# vertex.move_observers.append( observer )
+		# v2.move_observers.append( observer )
+		# return
 
 		if len( self.polygon.vertices ) == 3:
 			return False
 		self.polygon.vertices.remove( vertex )
 
-		del_edges = [e for e in self.polygon.edges if e.p1 == vertex.point or e.p2 == vertex.point]
-		p1 = __opposite_point__( del_edges[0], vertex )
-		p2 = __opposite_point__( del_edges[1], vertex )
+		del_edges = [e for e in self.polygon.edges if e.v1 == vertex or e.v2 == vertex]
+		v1 = __opposite_vertex__( del_edges[0], vertex )
+		v2 = __opposite_vertex__( del_edges[1], vertex )
 
 		del_index = self.polygon.edges.index( del_edges[0] )
 		for edge in del_edges:
 			self.polygon.edges.remove( edge )
 
-		self.polygon.edges.insert( del_index, Edge( p1, p2 ) )
+		self.polygon.edges.insert( del_index, Edge( v1, v2 ) )
 		return True
 
 	def visit_edge( self, edge: Edge ) -> bool:

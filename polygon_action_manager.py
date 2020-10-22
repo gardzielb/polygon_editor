@@ -34,7 +34,7 @@ class PolygonActionManager:
 			self.is_active = False
 
 	def move_object( self, dest_point: QPoint ):
-		self.active_object.move( dest_point )
+		self.active_object.move( dest_point.x(), dest_point.y() )
 
 	def set_moving( self, is_moving: bool ):
 		self.is_moving = is_moving

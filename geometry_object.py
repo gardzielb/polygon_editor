@@ -16,7 +16,7 @@ class GeometryObject( ABC ):
 		pass
 
 	@abstractmethod
-	def move( self, dest_point: QPoint ):
+	def move( self, dest_x: int, dest_y: int ):
 		pass
 
 	@abstractmethod
