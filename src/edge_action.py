@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
-from edge import Edge
-from geo_utils import line_middle_point
-from polygon import Polygon
-from vertex import Vertex, VerticalEdgeVertexRelation, HorizontalEdgeVertexRelation, FixedEdgeLengthVertexRelation, \
+from src.edge import Edge
+from src.edge_constraints import EdgeConstraint
+from src.geo_utils import line_middle_point
+from src.polygon import Polygon
+from src.vertex import Vertex, VerticalEdgeVertexRelation, HorizontalEdgeVertexRelation, FixedEdgeLengthVertexRelation, \
 	VertexRelation
 
 
@@ -20,6 +21,8 @@ class AddMiddlePointEdgeAction( EdgeAction ):
 		self.polygon = polygon
 
 	def apply( self, edge: Edge ) -> bool:
+		RemoveConstraintEdgeAction().apply( edge )
+
 		e_index = self.polygon.edges.index( edge )
 		self.polygon.edges.remove( edge )
 
@@ -47,7 +50,12 @@ class AddMiddlePointEdgeAction( EdgeAction ):
 		return True
 
 
-def try_set_relation( v1: Vertex, v2: Vertex, relation: VertexRelation ) -> bool:
+def try_set_relation( edge: Edge, relation: VertexRelation ) -> bool:
+	if edge.constraint:
+		return False
+
+	v1 = edge.v1
+	v2 = edge.v2
 	if relation.can_allow_move( sender = v1, dest_x = v1.x(), dest_y = v1.y(), initiator = v1 ):
 		relation.correct( sender = v1 )
 	elif relation.can_allow_move( sender = v2, dest_x = v2.x(), dest_y = v2.y(), initiator = v2 ):
@@ -63,13 +71,19 @@ def try_set_relation( v1: Vertex, v2: Vertex, relation: VertexRelation ) -> bool
 class VerticalConstraintEdgeAction( EdgeAction ):
 
 	def apply( self, edge: Edge ) -> bool:
-		return try_set_relation( edge.v1, edge.v2, VerticalEdgeVertexRelation( edge.v1, edge.v2 ) )
+		if try_set_relation( edge, VerticalEdgeVertexRelation( edge.v1, edge.v2 ) ):
+			edge.constraint = EdgeConstraint.VERTICAL
+			return True
+		return False
 
 
 class HorizontalConstraintEdgeAction( EdgeAction ):
 
 	def apply( self, edge: Edge ) -> bool:
-		return try_set_relation( edge.v1, edge.v2, HorizontalEdgeVertexRelation( edge.v1, edge.v2 ) )
+		if try_set_relation( edge, HorizontalEdgeVertexRelation( edge.v1, edge.v2 ) ):
+			edge.constraint = EdgeConstraint.HORIZONTAL
+			return True
+		return False
 
 
 class FixedLengthConstraintEdgeAction( EdgeAction ):
@@ -78,4 +92,25 @@ class FixedLengthConstraintEdgeAction( EdgeAction ):
 		self.length = length
 
 	def apply( self, edge: Edge ) -> bool:
-		return try_set_relation( edge.v1, edge.v2, FixedEdgeLengthVertexRelation( edge.v1, edge.v2, self.length ) )
+		if try_set_relation( edge, FixedEdgeLengthVertexRelation( edge.v1, edge.v2, self.length ) ):
+			edge.constraint = EdgeConstraint.FIXED_LENGTH
+			return True
+		return False
+
+
+class RemoveConstraintEdgeAction( EdgeAction ):
+
+	def apply( self, edge: Edge ) -> bool:
+		if not edge.constraint:
+			return True
+
+		matching_relations = [rel for rel in edge.v1.relations if rel.constraint == edge.constraint]
+		removed = [rel for rel in edge.v2.relations if rel in matching_relations]
+		if len( removed ) != 1:
+			return False
+
+		edge.v1.relations.remove( removed[0] )
+		edge.v2.relations.remove( removed[0] )
+
+		edge.constraint = None
+		return True

@@ -2,9 +2,9 @@ from typing import Union, List
 
 from PyQt5.QtCore import QPoint
 
-from geometry_object import GeometryObject
-from polygon import Polygon
-from edit_visitor import EditGeometryObjectVisitor
+from src.geometry_object import GeometryObject
+from src.polygon import Polygon
+from src.edit_visitor import EditGeometryObjectVisitor
 
 
 class PolygonActionManager:
@@ -23,7 +23,7 @@ class PolygonActionManager:
 		self.active_object.highlight = True
 		self.is_active = True
 
-	def remove_object( self ) -> bool:
+	def edit_remove_object( self ) -> bool:
 		return self.active_object.accept_visitor( self.remove_visitor )
 
 	def release_object( self ):

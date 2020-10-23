@@ -3,11 +3,11 @@ from typing import List, Union
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainterPath, QColor
 
-from edge import Edge
-from geometry_drawer import GeometryDrawer
-from geometry_object import GeometryObject
-from geometry_visitor import GeometryObjectVisitor
-from vertex import Vertex
+from src.edge import Edge
+from src.geometry_drawer import GeometryDrawer
+from src.geometry_object import GeometryObject
+from src.geometry_visitor import GeometryObjectVisitor
+from src.vertex import Vertex
 
 
 class Polygon( GeometryObject ):

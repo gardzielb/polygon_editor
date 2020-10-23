@@ -1,13 +1,15 @@
-from typing import Union
+from typing import Union, Optional
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
 
-from geo_utils import get_line_equation, line_length
-from geometry_drawer import GeometryDrawer
-from geometry_object import GeometryObject
-from geometry_visitor import GeometryObjectVisitor
-from vertex import Vertex
+from src.edge_constraints import EdgeConstraint
+from src.geo_utils import get_line_equation, line_length
+from src.geometry_drawer import GeometryDrawer
+from src.geometry_object import GeometryObject
+from src.geometry_visitor import GeometryObjectVisitor
+from src.vertex import Vertex
+from src.geo_utils import line_middle_point
 
 
 class Edge( GeometryObject ):
@@ -25,11 +27,16 @@ class Edge( GeometryObject ):
 		self.a, self.b = get_line_equation( v1.point, v2.point )
 		self.length = line_length( v1.point, v2.point )
 
+		self.constraint: Optional[EdgeConstraint] = None
+
 	def draw( self, drawer: GeometryDrawer ):
 		prev_pen = drawer.pen()
 		if self.highlight:
 			drawer.set_pen( self.HIGHLIGHT_PEN )
 		drawer.draw_line( self.v1.point, self.v2.point )
+		if self.constraint:
+			# print( "Drawing icon ", self.constraint.value )
+			drawer.draw_icon( self.constraint.value, line_middle_point( self.v1.point, self.v2.point ) )
 		drawer.set_pen( prev_pen )
 
 	def move( self, dest_x: int, dest_y: int ):

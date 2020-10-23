@@ -2,8 +2,8 @@ from typing import List, Union
 
 from PyQt5.QtCore import QPoint
 
-from geometry_drawer import GeometryDrawer
-from polygon import Polygon, Vertex
+from src.geometry_drawer import GeometryDrawer
+from src.polygon import Polygon, Vertex
 
 
 class PolygonBuilder:

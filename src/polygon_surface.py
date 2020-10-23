@@ -1,21 +1,31 @@
 from typing import List
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPaintEvent, QMouseEvent
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QMessageBox
 
-from geometry_drawer import GeometryDrawer
-from polygon import Polygon
-from polygon_action_manager import PolygonActionManager
-from polygon_builder import PolygonBuilder
+from src.geometry_drawer import GeometryDrawer
+from src.polygon import Polygon
+from src.polygon_action_manager import PolygonActionManager
+from src.polygon_builder import PolygonBuilder
+
+
+def show_message( icon: QMessageBox.Icon, title: str, text: str ):
+	msg_box = QMessageBox()
+	msg_box.setIcon( icon )
+	msg_box.setWindowTitle( title )
+	msg_box.setText( text )
+	msg_box.setStandardButtons( QMessageBox.Ok )
+	msg_box.exec_()
 
 
 class PolygonSurface( QWidget ):
 
 	def __init__( self, *args ):
 		super().__init__( *args )
-		self.drawer = GeometryDrawer()
+		self.setMinimumSize( QSize( 1200, 800 ) )
 
+		self.drawer = GeometryDrawer()
 		self.polygons: List[Polygon] = []
 		self.polygon_builder = PolygonBuilder()
 		self.polygon_action_manager = PolygonActionManager()
@@ -38,7 +48,10 @@ class PolygonSurface( QWidget ):
 					self.polygons.append( self.polygon_builder.build_polygon() )
 		else:
 			if self.polygon_action_manager.is_active:
-				self.polygon_action_manager.remove_object()
+				if not self.polygon_action_manager.edit_remove_object():
+					show_message(
+						icon = QMessageBox.Critical, title = 'Action failed', text = 'Cannot perform required action.'
+					)
 			else:
 				self.polygon_builder.reset()
 		self.repaint()

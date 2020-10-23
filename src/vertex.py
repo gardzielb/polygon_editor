@@ -6,10 +6,11 @@ from typing import List, Optional
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
 
-from geo_utils import line_length
-from geometry_drawer import GeometryDrawer
-from geometry_object import GeometryObject
-from geometry_visitor import GeometryObjectVisitor
+from src.edge_constraints import EdgeConstraint
+from src.geo_utils import line_length
+from src.geometry_drawer import GeometryDrawer
+from src.geometry_object import GeometryObject
+from src.geometry_visitor import GeometryObjectVisitor
 
 
 class Vertex( GeometryObject ):
@@ -30,6 +31,19 @@ class Vertex( GeometryObject ):
 		drawer.draw_point( self.point, radius )
 		drawer.set_pen( prev_pen )
 
+	def move( self, dest_x: int, dest_y: int ):
+		self.move_carelessly( dest_x, dest_y )
+		for relation in self.relations:
+			relation.correct( sender = self )
+
+	def is_hit( self, hit: QPoint ) -> bool:
+		if abs( self.point.x() - hit.x() ) > self.RADIUS:
+			return False
+		return abs( self.point.y() - hit.y() ) <= self.RADIUS
+
+	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
+		return visitor.visit_vertex( vertex = self )
+
 	def can_move(
 			self, dest_x, dest_y, initiator: Optional[Vertex] = None, sender: Optional[VertexRelation] = None
 	) -> bool:
@@ -42,22 +56,9 @@ class Vertex( GeometryObject ):
 				return False
 		return True
 
-	def move( self, dest_x: int, dest_y: int ):
-		self.move_carelessly( dest_x, dest_y )
-		for relation in self.relations:
-			relation.correct( sender = self )
-
 	def move_carelessly( self, dest_x: int, dest_y: int ):
 		self.point.setX( dest_x )
 		self.point.setY( dest_y )
-
-	def is_hit( self, hit: QPoint ) -> bool:
-		if abs( self.point.x() - hit.x() ) > self.RADIUS:
-			return False
-		return abs( self.point.y() - hit.y() ) <= self.RADIUS
-
-	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
-		return visitor.visit_vertex( vertex = self )
 
 	def x( self ) -> int:
 		return self.point.x()
@@ -73,6 +74,9 @@ class Vertex( GeometryObject ):
 
 
 class VertexRelation( ABC ):
+
+	def __init__( self, constraint: EdgeConstraint ):
+		self.constraint = constraint
 
 	@abstractmethod
 	def can_allow_move( self, sender: Vertex, dest_x: int, dest_y: int, initiator: Vertex ) -> bool:
@@ -92,6 +96,7 @@ def find_the_other( sender: Vertex, v1: Vertex, v2: Vertex ) -> Vertex:
 class VerticalEdgeVertexRelation( VertexRelation ):
 
 	def __init__( self, v1: Vertex, v2: Vertex ):
+		super().__init__( EdgeConstraint.VERTICAL )
 		self.v1 = v1
 		self.v2 = v2
 
@@ -112,6 +117,7 @@ class VerticalEdgeVertexRelation( VertexRelation ):
 class HorizontalEdgeVertexRelation( VertexRelation ):
 
 	def __init__( self, v1: Vertex, v2: Vertex ):
+		super().__init__( EdgeConstraint.HORIZONTAL )
 		self.v1 = v1
 		self.v2 = v2
 
@@ -132,6 +138,7 @@ class HorizontalEdgeVertexRelation( VertexRelation ):
 class FixedEdgeLengthVertexRelation( VertexRelation ):
 
 	def __init__( self, v1: Vertex, v2: Vertex, length: int ):
+		super().__init__( EdgeConstraint.FIXED_LENGTH )
 		self.v1 = v1
 		self.v2 = v2
 		self.length = length
@@ -140,7 +147,7 @@ class FixedEdgeLengthVertexRelation( VertexRelation ):
 
 	def can_allow_move( self, sender: Vertex, dest_x: int, dest_y: int, initiator: Vertex ) -> bool:
 		receiver = find_the_other( sender, self.v1, self.v2 )
-		if line_length( receiver.point, QPoint( dest_x, dest_y ) ) == self.length:
+		if abs( line_length( receiver.point, QPoint( dest_x, dest_y ) ) - self.length ) <= Vertex.RADIUS:
 			return True
 		if receiver == initiator:
 			return False
@@ -150,7 +157,7 @@ class FixedEdgeLengthVertexRelation( VertexRelation ):
 
 	def correct( self, sender: Vertex ):
 		receiver = find_the_other( sender, self.v1, self.v2 )
-		if line_length( sender.point, receiver.point ) == self.length:
+		if abs( line_length( sender.point, receiver.point ) - self.length ) <= Vertex.RADIUS:
 			return
 		if self.dest_x or self.__try_on_circle__( receiver, sender.x(), sender.y(), sender ):
 			receiver.move( self.dest_x, self.dest_y )

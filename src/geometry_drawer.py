@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QPainter, QBrush, QColor, QPainterPath, QPaintDevice
+from PyQt5.QtGui import QPainter, QBrush, QColor, QPainterPath, QPaintDevice, QImage
 
-from line_drawers import SteepDecreaseLineDrawer, SteepIncreaseLineDrawer, GentleIncreaseLineDrawer, \
+from src.line_drawers import SteepDecreaseLineDrawer, SteepIncreaseLineDrawer, GentleIncreaseLineDrawer, \
 	GentleDecreaseLineDrawer
 
 
@@ -23,6 +23,10 @@ class GeometryDrawer:
 			self.draw_line_chain.draw_line( p1, p2, self.painter )
 		else:
 			self.draw_line_chain.draw_line( p2, p1, self.painter )
+
+	def draw_icon( self, icon_path: str, central_point: QPoint ):
+		icon = QImage( icon_path )
+		self.painter.drawImage( central_point.x() - icon.width() / 2, central_point.y() - icon.height() / 2, icon )
 
 	def fill_polygon( self, polygon_path: QPainterPath ):
 		self.painter.fillPath( polygon_path, self.painter.brush() )

@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from PyQt5.QtCore import QPoint
 
-from geometry_drawer import GeometryDrawer
-from geometry_visitor import GeometryObjectVisitor
+from src.geometry_drawer import GeometryDrawer
+from src.geometry_visitor import GeometryObjectVisitor
 
 
 class GeometryObject( ABC ):
