@@ -15,6 +15,7 @@ from src.geometry_visitor import GeometryObjectVisitor
 
 class Vertex( GeometryObject ):
 	RADIUS = 2
+	FOCUS_RADIUS = 6
 	HIGHLIGHT_PEN = QColor( 0, 200, 0 )
 
 	def __init__( self, point: QPoint ):
@@ -37,9 +38,9 @@ class Vertex( GeometryObject ):
 			relation.correct( sender = self )
 
 	def is_hit( self, hit: QPoint ) -> bool:
-		if abs( self.point.x() - hit.x() ) > self.RADIUS:
+		if abs( self.point.x() - hit.x() ) > self.FOCUS_RADIUS:
 			return False
-		return abs( self.point.y() - hit.y() ) <= self.RADIUS
+		return abs( self.point.y() - hit.y() ) <= self.FOCUS_RADIUS
 
 	def accept_visitor( self, visitor: GeometryObjectVisitor ) -> bool:
 		return visitor.visit_vertex( vertex = self )
@@ -156,6 +157,9 @@ class FixedEdgeLengthVertexRelation( VertexRelation ):
 		)
 
 	def correct( self, sender: Vertex ):
+		# if self.v1.point == self.v2.point:
+		# 	print( 'Halko' )
+
 		receiver = find_the_other( sender, self.v1, self.v2 )
 		if abs( line_length( sender.point, receiver.point ) - self.length ) <= Vertex.RADIUS:
 			return

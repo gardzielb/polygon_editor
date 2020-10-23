@@ -40,7 +40,7 @@ class EditGeometryObjectVisitor( GeometryObjectVisitor ):
 		return True
 
 	def visit_edge( self, edge: Edge ) -> bool:
-		dialog = EdgeDialog()
+		dialog = EdgeDialog( edge_length = edge.length )
 		if not dialog.exec_():
 			return True
 		action = dialog.get_action( self.polygon )

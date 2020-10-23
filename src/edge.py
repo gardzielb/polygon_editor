@@ -14,7 +14,7 @@ from src.geo_utils import line_middle_point
 
 class Edge( GeometryObject ):
 	HIGHLIGHT_PEN = QColor( 255, 255, 0 )
-	STROKE_WIDTH = 2
+	STROKE_WIDTH = 5
 
 	def __init__( self, v1: Vertex, v2: Vertex ):
 		super().__init__()
