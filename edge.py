@@ -37,7 +37,7 @@ class Edge( GeometryObject ):
 			move_x = dest_x - self.move_origin.x()
 			move_y = dest_y - self.move_origin.y()
 			dest1 = (self.v1.x() + move_x, self.v1.y() + move_y)
-			dest2 = QPoint( self.v2.x() + move_x, self.v2.y() + move_y )
+			dest2 = (self.v2.x() + move_x, self.v2.y() + move_y)
 			self.v1.move( dest1[0], dest1[1] )
 			self.v2.move( dest2[0], dest2[1] )
 		self.move_origin = QPoint( dest_x, dest_y )

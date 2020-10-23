@@ -52,7 +52,7 @@ class Polygon( GeometryObject ):
 			x_move = dest_x - self.move_origin.x()
 			y_move = dest_y - self.move_origin.y()
 			for vertex in self.vertices:
-				vertex.move( vertex.point.x() + x_move, vertex.point.y() + y_move )
+				vertex.move_carelessly( vertex.point.x() + x_move, vertex.point.y() + y_move )
 		self.move_origin = QPoint( dest_x, dest_y )
 
 	def is_hit( self, hit: QPoint ) -> bool:
