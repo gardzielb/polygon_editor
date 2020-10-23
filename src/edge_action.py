@@ -71,6 +71,11 @@ def try_set_relation( edge: Edge, relation: VertexRelation ) -> bool:
 class VerticalConstraintEdgeAction( EdgeAction ):
 
 	def apply( self, edge: Edge ) -> bool:
+		if [rel for rel in edge.v1.relations if rel.constraint == EdgeConstraint.VERTICAL]:
+			return False
+		if [rel for rel in edge.v2.relations if rel.constraint == EdgeConstraint.VERTICAL]:
+			return False
+
 		if try_set_relation( edge, VerticalEdgeVertexRelation( edge.v1, edge.v2 ) ):
 			edge.constraint = EdgeConstraint.VERTICAL
 			return True
@@ -80,6 +85,11 @@ class VerticalConstraintEdgeAction( EdgeAction ):
 class HorizontalConstraintEdgeAction( EdgeAction ):
 
 	def apply( self, edge: Edge ) -> bool:
+		if [rel for rel in edge.v1.relations if rel.constraint == EdgeConstraint.HORIZONTAL]:
+			return False
+		if [rel for rel in edge.v2.relations if rel.constraint == EdgeConstraint.HORIZONTAL]:
+			return False
+
 		if try_set_relation( edge, HorizontalEdgeVertexRelation( edge.v1, edge.v2 ) ):
 			edge.constraint = EdgeConstraint.HORIZONTAL
 			return True
