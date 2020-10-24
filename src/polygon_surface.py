@@ -1,14 +1,14 @@
 from typing import List
 
-from PyQt5.QtCore import Qt, QSize, QPoint
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPaintEvent, QMouseEvent
-from PyQt5.QtWidgets import QWidget, QMessageBox
+from PyQt5.QtWidgets import QWidget, QMessageBox, QFileDialog
 
 from src.geometry_drawer import GeometryDrawer
 from src.polygon import Polygon
 from src.polygon_action_manager import PolygonActionManager
 from src.polygon_builder import PolygonBuilder
-from src.vertex import Vertex
+from src.polygon_serializer import serialize_polygons, deserialize_polygons
 
 
 def show_message( icon: QMessageBox.Icon, title: str, text: str ):
@@ -75,43 +75,27 @@ class PolygonSurface( QWidget ):
 
 	def paintEvent( self, event: QPaintEvent ):
 		self.drawer.begin( self )
-
-		# delta_e = 3
-		# delta_se = 5 - 2 * 200
-		# d = 1 - 200
-		# x = 0
-		# y = 200
-		#
-		# self.drawer.painter.drawPoint( x + 500, y + 500 )
-		# self.drawer.painter.drawPoint( y + 500, x + 500 )
-		# self.drawer.painter.drawPoint( -y + 500, x + 500 )
-		# self.drawer.painter.drawPoint( -x + 500, y + 500 )
-		# self.drawer.painter.drawPoint( y + 500, -x + 500 )
-		# self.drawer.painter.drawPoint( x + 500, -y + 500 )
-		# self.drawer.painter.drawPoint( -x + 500, -y + 500 )
-		# self.drawer.painter.drawPoint( -y + 500, -x + 500 )
-		#
-		# while y > x:
-		# 	if d < 0:
-		# 		d += delta_e
-		# 		delta_e += 2
-		# 		delta_se += 2
-		# 	else:
-		# 		d += delta_se
-		# 		delta_e += 2
-		# 		delta_se += 4
-		# 		y -= 1
-		# 	x += 1
-		# 	self.drawer.painter.drawPoint( x + 500, y + 500 )
-		# 	self.drawer.painter.drawPoint( y + 500, x + 500 )
-		# 	self.drawer.painter.drawPoint( -y + 500, x + 500 )
-		# 	self.drawer.painter.drawPoint( -x + 500, y + 500 )
-		# 	self.drawer.painter.drawPoint( y + 500, -x + 500 )
-		# 	self.drawer.painter.drawPoint( x + 500, -y + 500 )
-		# 	self.drawer.painter.drawPoint( -x + 500, -y + 500 )
-		# 	self.drawer.painter.drawPoint( -y + 500, -x + 500 )
-
 		for polygon in self.polygons:
 			polygon.draw( self.drawer )
 		self.polygon_builder.draw( self.drawer )
 		self.drawer.end()
+
+	def save_polygons( self ):
+		file_name = QFileDialog.getSaveFileName()[0]
+		serialize_polygons( self.polygons, file_name )
+
+	# dialog = QFileDialog()
+	# dialog.setFileMode( QFileDialog.AnyFile )
+	# if dialog.exec_():
+	# 	file = dialog.selectedFiles()[0]
+	# 	serialize_polygons( self.polygons, file )
+
+	def load_polygons( self ):
+		file_name = QFileDialog.getOpenFileName()[0]
+		self.polygons = deserialize_polygons( file_name )
+
+# dialog = QFileDialog()
+# dialog.setFileMode( QFileDialog.AnyFile )
+# if dialog.exec_():
+# 	file = dialog.selectedFiles()[0]
+# 	self.polygons = deserialize_polygons( file )
