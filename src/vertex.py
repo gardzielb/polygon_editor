@@ -8,11 +8,10 @@ from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
 
 from src.edge_constraints import EdgeConstraint
-from src.geo_utils import line_length, get_line_equation
+from src.geo_utils import line_length, get_line_equation, circle_intersections
 from src.geometry_drawer import GeometryDrawer
 from src.geometry_object import GeometryObject
 from src.geometry_visitor import GeometryObjectVisitor
-from src.relation_resolving import resolve_length_length, resolve_length_horizontal, resolve_length_vertical
 
 
 class Vertex( GeometryObject ):
@@ -143,13 +142,23 @@ class HorizontalEdgeVertexRelation( VertexRelation ):
 			receiver.move_by_relation( receiver.x(), sender.y(), sender = self )
 
 
+def resolve_length_length( p1: QPoint, p2: QPoint, p_moved: QPoint, l1: int, l2: int ) -> Optional[QPoint]:
+	solution = circle_intersections( mid1 = p1, r1 = l1, mid2 = p2, r2 = l2 )
+	if not solution:
+		return None
+
+	dist1 = line_length( p_moved, solution[0] )
+	dist2 = line_length( p_moved, solution[1] )
+	if dist1 <= dist2:
+		return solution[0]
+	return solution[1]
+
+
 class FixedEdgeLengthVertexRelation( VertexRelation ):
 
 	def __init__( self, v1: Vertex, v2: Vertex, length: int ):
 		super().__init__( v1, v2, EdgeConstraint.FIXED_LENGTH )
 		self.length = length
-		# self.dest_x: Optional[int] = None
-		# self.dest_y: Optional[int] = None
 		self.dest: Optional[QPoint] = None
 
 	def can_allow_move( self, sender: Vertex, dest_x: int, dest_y: int, initiator: Vertex ) -> bool:
@@ -176,74 +185,16 @@ class FixedEdgeLengthVertexRelation( VertexRelation ):
 		move_y = receiver.y() + move_vector.y()
 		receiver.move_by_relation( move_x, move_y, sender = self )
 
-	def __try_on_circle__( self, vertex: Vertex, neighbor_x: int, neighbor_y: int, initiator: Vertex ) -> bool:
-		delta_e = 3
-		delta_se = 5 - 2 * self.length
-		d = 1 - self.length
-		x = 0
-		y = self.length
-
-		points: List[QPoint] = []
-		point = self.__closest_on_circle__( vertex, x, y, neighbor_x, neighbor_y, initiator )
-		if point:
-			points.append( point )
-
-		while y > x:
-			if d < 0:
-				d += delta_e
-				delta_e += 2
-				delta_se += 2
-			else:
-				d += delta_se
-				delta_e += 2
-				delta_se += 4
-				y -= 1
-			x += 1
-			point = self.__closest_on_circle__( vertex, x, y, neighbor_x, neighbor_y, initiator )
-			if point:
-				points.append( point )
-
-		if points:
-			points.sort( key = lambda pt: line_length( pt, vertex.point ) )
-			self.dest_x, self.dest_y = points[0].x(), points[0].y()
-			return True
-		return False
-
-	def __closest_on_circle__(
-			self, vertex: Vertex, x: int, y: int, offset_x: int, offset_y: int, initiator: Vertex
-	) -> Optional[QPoint]:
-		points = [
-			QPoint( x + offset_x, y + offset_y ), QPoint( y + offset_x, x + offset_y ),
-			QPoint( y + offset_x, -x + offset_y ), QPoint( x + offset_x, -y + offset_y ),
-			QPoint( -x + offset_x, -y + offset_y ), QPoint( -y + offset_x, -x + offset_y ),
-			QPoint( -y + offset_x, x + offset_y ), QPoint( -x + offset_x, y + offset_y )
-		]
-
-		points.sort( key = lambda pt: line_length( pt, vertex.point ) )
-		for point in points:
-			if vertex.can_move( point.x(), point.y(), initiator, sender = self ):
-				return point
-		return None
-
 	def __solve_conflict__( self, benchmark: QPoint, p_moved: Vertex ) -> Optional[QPoint]:
 		if p_moved.relations:
 			relation = p_moved.relations[0]
 			other_benchmark = find_the_other( p_moved, relation.v1, relation.v2 )
+
 			if relation.constraint == EdgeConstraint.FIXED_LENGTH:
 				return resolve_length_length(
 					p1 = benchmark, p2 = other_benchmark.point, p_moved = p_moved.point, l1 = self.length,
 					l2 = int( line_length( other_benchmark.point, p_moved.point ) )
 				)
-
-		# if relation.constraint == EdgeConstraint.VERTICAL:
-		# 	return resolve_length_vertical(
-		# 		p_length = benchmark, p_vertical = other_benchmark.point, p_moved = p_moved.point, length = self.length
-		# 	)
-		# elif relation.constraint == EdgeConstraint.HORIZONTAL:
-		# 	return resolve_length_horizontal(
-		# 		p_length = benchmark, p_horizontal = other_benchmark.point,
-		# 		p_moved = p_moved.point, length = self.length
-		# 	)
 
 		a, b = get_line_equation( benchmark, p_moved.point )
 		if p_moved.x() >= benchmark.x():

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar
+from PyQt5.QtWidgets import QMainWindow
 
 from src.polygon_surface import PolygonSurface
 
