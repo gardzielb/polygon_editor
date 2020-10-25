@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainterPath, QColor
@@ -22,7 +22,7 @@ class Polygon( GeometryObject ):
 		self.edges: List[Edge] = []
 		self.painter_path = self.__update_painter_path__()
 		self.is_moving = False
-		self.move_origin: Union[QPoint, None] = None
+		self.move_origin: Optional[QPoint] = None
 
 		for i in range( len( vertices ) ):
 			i2 = (i + 1) % len( vertices )
@@ -63,11 +63,12 @@ class Polygon( GeometryObject ):
 
 	def post_move_update( self ):
 		self.is_moving = False
+		self.move_origin = None
 		self.painter_path = self.__update_painter_path__()
 		for edge in self.edges:
 			edge.post_move_update()
 
-	def search_for_hit( self, point: QPoint ) -> Union[GeometryObject, None]:
+	def search_for_hit( self, point: QPoint ) -> Optional[GeometryObject]:
 		objects: List[GeometryObject] = self.vertices.copy()
 		objects.extend( self.edges )
 		objects.append( self )

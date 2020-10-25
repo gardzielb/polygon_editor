@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, Callable
+from typing import Callable, Optional
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainter
@@ -31,7 +31,7 @@ def draw_line_bresenham(
 
 class LineDrawer( ABC ):
 	def __init__( self ):
-		self.next: Union[None, LineDrawer] = None
+		self.next: Optional[LineDrawer] = None
 
 	def set_next( self, next_in_chain: LineDrawer ) -> LineDrawer:
 		self.next = next_in_chain

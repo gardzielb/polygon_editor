@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Optional
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QColor
@@ -18,7 +18,7 @@ class Edge( GeometryObject ):
 
 	def __init__( self, v1: Vertex, v2: Vertex ):
 		super().__init__()
-		self.move_origin: Union[QPoint, None] = None
+		self.move_origin: Optional[QPoint] = None
 
 		self.v1 = v1
 		self.v2 = v2

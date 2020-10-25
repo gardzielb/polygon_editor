@@ -1,3 +1,4 @@
+from pickle import UnpicklingError
 from typing import List
 
 from PyQt5.QtCore import Qt, QSize
@@ -82,20 +83,15 @@ class PolygonSurface( QWidget ):
 
 	def save_polygons( self ):
 		file_name = QFileDialog.getSaveFileName()[0]
-		serialize_polygons( self.polygons, file_name )
-
-	# dialog = QFileDialog()
-	# dialog.setFileMode( QFileDialog.AnyFile )
-	# if dialog.exec_():
-	# 	file = dialog.selectedFiles()[0]
-	# 	serialize_polygons( self.polygons, file )
+		if file_name:
+			serialize_polygons( self.polygons, file_name )
 
 	def load_polygons( self ):
 		file_name = QFileDialog.getOpenFileName()[0]
-		self.polygons = deserialize_polygons( file_name )
-
-# dialog = QFileDialog()
-# dialog.setFileMode( QFileDialog.AnyFile )
-# if dialog.exec_():
-# 	file = dialog.selectedFiles()[0]
-# 	self.polygons = deserialize_polygons( file )
+		if file_name:
+			try:
+				self.polygons = deserialize_polygons( file_name )
+			except UnpicklingError:
+				show_message(
+					icon = QMessageBox.Critical, title = 'Open file error', text = 'Failed to load polygons from file'
+				)

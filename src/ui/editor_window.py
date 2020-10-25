@@ -9,7 +9,9 @@ class EditorWindow( QMainWindow ):
 
 		menu = self.menuBar().addMenu( 'File' )
 		save_action = menu.addAction( 'Save' )
+		save_action.setShortcut( 'Ctrl+S' )
 		load_action = menu.addAction( 'Load' )
+		load_action.setShortcut( 'Ctrl+O' )
 
 		self.setWindowTitle( 'Polygon Editor' )
 		polygon_surface = PolygonSurface()

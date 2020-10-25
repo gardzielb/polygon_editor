@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List, Optional
 
 from PyQt5.QtCore import QPoint
 
@@ -10,9 +10,9 @@ from src.edit_visitor import EditGeometryObjectVisitor
 class PolygonActionManager:
 
 	def __init__( self ):
-		self.polygon: Union[Polygon, None] = None
-		self.active_object: Union[GeometryObject, None] = None
-		self.remove_visitor: Union[EditGeometryObjectVisitor, None] = None
+		self.polygon: Optional[Polygon] = None
+		self.active_object: Optional[GeometryObject] = None
+		self.remove_visitor: Optional[EditGeometryObjectVisitor] = None
 		self.is_moving = False
 		self.is_active = False
 

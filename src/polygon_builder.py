@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional
 
 from PyQt5.QtCore import QPoint
 
@@ -11,7 +11,7 @@ class PolygonBuilder:
 	def __init__( self ):
 		self.vertices: List[Vertex] = []
 		self.is_finished = False
-		self.floating_vertex: Union[Vertex, None] = None
+		self.floating_vertex: Optional[Vertex, None] = None
 
 	def add_point( self, point: QPoint ):
 		if self.is_finished and self.vertices:
