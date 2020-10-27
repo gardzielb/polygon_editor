@@ -10,6 +10,7 @@ from src.polygon import Polygon
 from src.polygon_action_manager import PolygonActionManager
 from src.polygon_builder import PolygonBuilder
 from src.polygon_serializer import serialize_polygons, deserialize_polygons
+from src.settings_dialog import SettingsDialog
 
 
 def show_message( icon: QMessageBox.Icon, title: str, text: str ):
@@ -95,3 +96,9 @@ class PolygonSurface( QWidget ):
 				show_message(
 					icon = QMessageBox.Critical, title = 'Open file error', text = 'Failed to load polygons from file'
 				)
+
+	def open_settings_dialog( self ):
+		dialog = SettingsDialog( self.drawer.line_algorithm )
+		if dialog.exec_():
+			self.drawer.line_algorithm = dialog.get_chosen_value()
+			self.repaint()

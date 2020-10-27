@@ -12,6 +12,7 @@ class EditorWindow( QMainWindow ):
 		save_action.setShortcut( 'Ctrl+S' )
 		load_action = menu.addAction( 'Load' )
 		load_action.setShortcut( 'Ctrl+O' )
+		settings_action = menu.addAction( 'Settings' )
 
 		self.setWindowTitle( 'Polygon Editor' )
 		polygon_surface = PolygonSurface()
@@ -19,3 +20,4 @@ class EditorWindow( QMainWindow ):
 
 		save_action.triggered.connect( polygon_surface.save_polygons )
 		load_action.triggered.connect( polygon_surface.load_polygons )
+		settings_action.triggered.connect( polygon_surface.open_settings_dialog )

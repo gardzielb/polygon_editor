@@ -12,6 +12,11 @@
   * ustawienie krawędzi jako poziomej,
   * nadanie krawędzi stałej długości i wybranie wartości,
   * usunięcie ograniczenia (relacji) aktualnie przypisanego do krawędzi.
+ 
+## Predefiniowany wielokąt
+
+Aby otworzyć w aplikacji przygotowany wielokąt, należy z menu _File_ wybrać opcję _Load_ i otworzyć plik _predefined01_ znajdujący się w katalogu z projektem.
+Projekt powinien działać zarówno na Windowsie jak i na Linuxach, jednak predefiniowany wielokąt został zapisany binarnie na Windowsie i pradopodobnie nie otworzy się na Linuksie.
 
 ## Algorytmy relacji
 
