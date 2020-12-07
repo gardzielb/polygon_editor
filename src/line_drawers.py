@@ -11,7 +11,7 @@ from src.geo_utils import get_line_equation
 
 
 def draw_pixel_opacity( p: QPoint, painter: QPainter, opacity: float ):
-	painter.setOpacity( opacity )
+	painter.setOpacity( 1 - opacity )
 	painter.drawPoint( p )
 
 
@@ -23,8 +23,8 @@ def draw_line_wu(
 	m, _ = get_line_equation( p1, p2 )
 
 	for x in range( p1.x(), p2.x() + 1 ):
-		c2 = y - math.floor( y )
-		c1 = 1 - c2
+		c1 = y - math.floor( y )
+		c2 = 1 - c1
 		pixel1 = transform( QPoint( x, math.floor( y ) ) )
 		pixel2 = transform( QPoint( x, math.ceil( y ) ) )
 		draw_pixel_opacity( pixel1, painter, opacity = c1 )
@@ -140,3 +140,4 @@ def create_line_drawer_chain( draw_line_function: Callable ) -> LineDrawer:
 		.set_next( GentleDecreaseLineDrawer( draw_line_function ) ) \
 		.set_next( SteepDecreaseLineDrawer( draw_line_function ) )
 	return chain
+

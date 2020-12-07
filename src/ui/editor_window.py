@@ -21,3 +21,4 @@ class EditorWindow( QMainWindow ):
 		save_action.triggered.connect( polygon_surface.save_polygons )
 		load_action.triggered.connect( polygon_surface.load_polygons )
 		settings_action.triggered.connect( polygon_surface.open_settings_dialog )
+		settings_action.triggered.connect( polygon_surface.open_settings_dialog )

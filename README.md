@@ -18,6 +18,8 @@
 Aby otworzyć w aplikacji przygotowany wielokąt, należy z menu _File_ wybrać opcję _Load_ i otworzyć plik _predefined01_ znajdujący się w katalogu z projektem.
 Projekt powinien działać zarówno na Windowsie jak i na Linuxach, jednak predefiniowany wielokąt został zapisany binarnie na Windowsie i pradopodobnie nie otworzy się na Linuksie.
 
+Aby otworzyć w aplikacji przygotowany wielokąt, należy z menu _File_ wybrać opcję _Load_ i otworzyć plik _predefined01_ znajdujący się w katalogu z projektem.
+
 ## Algorytmy relacji
 
 Nałożenie na krawędź danego ograniczenia (czyli ustalenie pewnej relacji między jej wierzchołkami) składa się z dwóch etapów:
